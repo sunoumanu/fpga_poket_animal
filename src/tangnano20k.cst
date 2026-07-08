@@ -1,0 +1,74 @@
+// Tang Nano 20K physical constraints for tt_um_poket_animal (top.v)
+//
+// Pin facts from the Tang Nano 20K v1.2 schematic (Tang_Nano_20K_3921):
+//   - 27 MHz oscillator on pin 4
+//   - S1 = pin 88 (MODE0_KEY1), S2 = pin 87 (MODE1_KEY2); both switch the
+//     pin to +3V3 through 330R when pressed -> active high, pulled down here
+//   - LEDs 0..5 on pins 15..20, anodes at +3V3 through 510R -> active low
+//   - Header J6 carries pins 25..31 and 77; header J5 carries 41, 42, 48,
+//     71, 72 (pin numbers are printed on the board silkscreen)
+
+// 27 MHz crystal
+IO_LOC "clk" 4;
+IO_PORT "clk" IO_TYPE=LVCMOS33 PULL_MODE=NONE;
+
+// On-board buttons (active high)
+IO_LOC "btn_feed" 88;                            // S1
+IO_PORT "btn_feed" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+IO_LOC "btn_pet" 87;                             // S2
+IO_PORT "btn_pet" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+
+// External reset: short this header pin to GND to reset/revive
+IO_LOC "rst_btn_n" 42;                           // J5
+IO_PORT "rst_btn_n" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+// Speed select jumpers, ui_in[3:2]. Pull modes give a default of 2'b01
+// (needy pet, ~9.9 s per hunger tick at 27 MHz). Jumper to 3V3/GND to
+// override; avoid 2'b11 on hardware (it disables the button debounce).
+// NOTE: must stay off pins 13/71-76/86 — those are wired to the on-board
+// BL616 MCU (HSPI nets), which can drive them and override the weak
+// internal pulls. 41/42/48 go only to the unpopulated LCD FPC connector.
+IO_LOC "speed[0]" 48;                            // J5, default 1 (pull-up)
+IO_PORT "speed[0]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_LOC "speed[1]" 41;                            // J5, default 0 (pull-down)
+IO_PORT "speed[1]" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+
+// 7-segment face on header J6: common-cathode digit, active-high segments.
+// Use ~330R series resistors; seg[7:0] = {dp, g, f, e, d, c, b, a}.
+IO_LOC "seg[0]" 25;                              // a
+IO_PORT "seg[0]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "seg[1]" 26;                              // b
+IO_PORT "seg[1]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "seg[2]" 27;                              // c
+IO_PORT "seg[2]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "seg[3]" 28;                              // d
+IO_PORT "seg[3]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "seg[4]" 29;                              // e
+IO_PORT "seg[4]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "seg[5]" 30;                              // f
+IO_PORT "seg[5]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "seg[6]" 31;                              // g
+IO_PORT "seg[6]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "seg[7]" 77;                              // dp
+IO_PORT "seg[7]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+
+// On-board LEDs (active low): 0 alive, 1 heartbeat, 2 sick, 3 wiggle,
+// 4 hunger[0], 5 hunger[1]
+IO_LOC "led_n[0]" 15;
+IO_PORT "led_n[0]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "led_n[1]" 16;
+IO_PORT "led_n[1]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "led_n[2]" 17;
+IO_PORT "led_n[2]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "led_n[3]" 18;
+IO_PORT "led_n[3]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "led_n[4]" 19;
+IO_PORT "led_n[4]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "led_n[5]" 20;
+IO_PORT "led_n[5]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+
+// Debug outputs (SDIO pins: only reach the unpopulated microSD slot)
+IO_LOC "tick" 85;                                // J6, hunger-tick pulse (scope)
+IO_PORT "tick" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+IO_LOC "cause" 80;                               // J5, 0 starved, 1 overfed
+IO_PORT "cause" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
